@@ -3,22 +3,160 @@ import requests
 from bs4 import BeautifulSoup
 from tkinter import Tk, Label, Button, Entry, IntVar, END, W, E, Text, messagebox
 
-df = pd.read_excel('/Users/anirudhseela/Downloads/ProgramTest.xlsx')
+from tkinter import Tk, Label, Button, Entry, IntVar, END, W, E, Text, messagebox
+
+excelSheet = []
+sections = []
+minRating = []
+maxRating = []
+toNext = [True]
+
+
+class ExcelSheet:
+
+    def __init__(self, master):
+        self.master = master
+        master.title("Chess Tourney Management System")
+
+        self.title = Label(master, text="Chess Tourney Management System")
+        self.dir = Label(master, text="Enter the path of the Excel Sheet.")
+
+        self.excelName = Label(master, text="Excel Sheet Name:")
+
+        self.excelName_text = Entry(master)
+        self.excelName_text.focus_set()
+
+        self.next_button = Button(master, text="Next", command=lambda: self.Enter())
+        self.exit_button = Button(master, text="Exit", command=lambda: self.Exit())
+
+        self.title.grid(row=0, column=0, sticky=W)
+        self.dir.grid(row=1, column=0, sticky=W)
+
+        self.excelName.grid(row=2, column=0, sticky=W)
+        self.excelName_text.grid(row=2, column=1, sticky=W)
+
+        self.next_button.grid(row=4, column=0)
+        self.exit_button.grid(row=4, column=1, sticky=W)
+
+    def Enter(self):
+        if (len(excelSheet)) > 0:
+            excelSheet[0] = str(self.excelName_text.get())
+        else:
+            excelSheet.append(str(self.excelName_text.get()))
+
+        bool = messagebox.askyesno('Excel Sheet', "Your excel sheet is \'" + excelSheet[0] +
+                                   "\'. If this is incorrect reenter your excel sheet. If it is not correct click no and "
+                                   "reenter the information.")
+        if not bool:
+            excelSheet.clear()
+            self.excelName_text.delete(0, len(str(self.excelName_text)))
+            self.excelName_text.focus_set()
+
+        else:
+            root.destroy()
+
+    def Exit(self):
+        root.destroy()
+        toNext[0] = False
+
+
+if toNext[0]:
+    root = Tk()
+    my_gui = ExcelSheet(root)
+    root.mainloop()
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+class Sections:
+
+    def __init__(self, master):
+        self.master = master
+        master.title("Chess Tourney Management System")
+
+        self.title = Label(master, text="Chess Tourney Management System")
+        self.dir = Label(master, text="Enter the path of the Excel Sheet.")
+
+        self.sectionName = Label(master, text="Section Name:")
+        self.min = Label(master, text="Min Rating: ")
+        self.max = Label(master, text="Max Rating: ")
+
+        self.sectionName_text = Entry(master)
+        self.min_text = Entry(master)
+        self.max_text = Entry(master)
+        self.sectionName_text.focus_set()
+
+        self.add_button = Button(master, text="Add", command=lambda: self.Add())
+        self.next_button = Button(master, text="NEXT", command=lambda: self.Next())
+        self.exit_button = Button(master, text="Exit", command=master.quit)
+
+        self.title.grid(row=0, column=0, sticky=W)
+        self.dir.grid(row=1, column=0, sticky=W)
+
+        self.sectionName.grid(row=2, column=0, sticky=W)
+        self.sectionName_text.grid(row=2, column=1, sticky=W)
+
+        self.min.grid(row=3, column=0, sticky=W)
+        self.min_text.grid(row=3, column=1, sticky=W)
+
+        self.max.grid(row=4, column=0, sticky=W)
+        self.max_text.grid(row=4, column=1, sticky=W)
+
+        self.add_button.grid(row=5, column=0)
+        self.next_button.grid(row=5, column=1, sticky=W)
+        self.exit_button.grid(row=5, column=2, sticky=W)
+
+    def Add(self):
+
+        minRating.append(self.min_text.get())
+        maxRating.append(self.max_text.get())
+
+        sections.append(self.sectionName_text.get())
+
+        self.min_text.delete(0, len(str(self.min_text)))
+        self.max_text.delete(0, len(str(self.max_text)))
+        self.sectionName_text.delete(0, len(str(self.sectionName_text)))
+
+        self.sectionName_text.focus_set()
+
+    def Next(self):
+        sectionsStr = "Please verify that the sections info is correct \n"
+        if len(sections) < 1:
+            sectionsStr += "Section: None Min Rating: None Max Rating: None"
+        else:
+            for i in range(0, len(sections)):
+                sectionsStr += "Section " + sections[i] + " Min Rating: " + minRating[i] + " Max Rating: " + maxRating[
+                    i] \
+                               + "\n"
+
+        sectionsStr += "If not click no and reenter the information."
+        bool = messagebox.askyesno('Excel Sheet', sectionsStr)
+        if not bool:
+            minRating.clear()
+            maxRating.clear()
+            sections.clear()
+            self.sectionName_text.focus_set()
+        else:
+            root.destroy()
+
+
+if toNext[0]:
+    root = Tk()
+    my_gui = Sections(root)
+    root.mainloop()
+# ----------------------------------------------------------------------------------------------------------------------
+
+df = pd.read_excel(str(excelSheet[0]))
 
 dfFirst = df['First Name']
 dfLast = df['Last Name']
 dfState = df['State']
-dfMin = df['Min']
-dfMax = df['Max']
+dfSection = df['Section']
 
 firstName = []
 lastName = []
 state = []
-minRating = []
-maxRating = []
-
 ratings = []
-
 
 for i in range(dfFirst.size):
     firstName.append(dfFirst[i])
@@ -29,33 +167,37 @@ for i in range(dfLast.size):
 for i in range(dfState.size):
     state.append(dfState[i])
 
-for i in range(dfMin.size):
-    minRating.append(dfMin[i])
 
-for i in range(dfMax.size):
-    maxRating.append(dfMax[i])
-
-print(len(firstName))
 
 for i in range(len(firstName)):
-    URL = 'http://www.uschess.org/datapage/player-search.php?name=' + firstName[i] + "+" + lastName[i] + '&state=' + \
-          state[0] + '&ratingmin=' + str(minRating[i]) + ' &ratingmax=' + str(maxRating[i]) + \
-          '&order=N&rating=R&mode=Find'
+    try:
+        a = sections.index(str(dfSection[i]))
 
-    data = {'Player Name or ID': 'name'}
-    r = requests.get(URL)
+        URL = 'http://www.uschess.org/datapage/player-search.php?name=' + firstName[i] + "+" + lastName[i] + '&state=' + \
+              state[i] + '&ratingmin=' + str(minRating[a]) + ' &ratingmax=' + str(maxRating[a]) + \
+              '&order=N&rating=R&mode=Find'
 
-    rating = []
-    soup = BeautifulSoup(r.content, 'html.parser')
-    for form in soup.find_all("td"):
-        rating.append(form)
+        data = {'Player Name or ID': 'name'}
+        r = requests.get(URL)
 
-    str1 = ''.join(rating[15])
-    ratings.append(str1.strip())
+        rating = []
+        soup = BeautifulSoup(r.content, 'html.parser')
+        for form in soup.find_all("td"):
+            rating.append(form)
+
+        if (len(rating) > 39):
+            str1 = ''.join(rating[15])
+            ratings.append("review " + str1.strip())
+        else:
+            str1 = ''.join(rating[15])
+            ratings.append(str1.strip())
+    except Exception:
+        ratings.append("None")
 
 for r in range(len(ratings)):
     df['Ratings'][r] = ratings[r]
 
-df.head(5)
 df.to_excel('/Users/anirudhseela/Downloads/ProgramTest.xlsx')
-print("done")
+
+messagebox.showinfo('Chess Tourney Management System', "The process has been completed! " +
+                                                       "Please refresh your excel sheet to see the changes.")
