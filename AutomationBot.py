@@ -3,8 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 from tkinter import Tk, Label, Button, Entry, IntVar, END, W, E, Text, messagebox
 
-from tkinter import Tk, Label, Button, Entry, IntVar, END, W, E, Text, messagebox
-
 excelSheet = []
 sections = []
 minRating = []
