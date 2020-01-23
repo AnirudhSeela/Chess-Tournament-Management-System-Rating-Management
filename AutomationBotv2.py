@@ -12,7 +12,6 @@ minRating = []
 maxRating = []
 toNext = [True]
 
-
 class ExcelSheet:
 
     def __init__(self, master):
